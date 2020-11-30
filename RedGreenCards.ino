@@ -18,6 +18,10 @@ int sat = 0;
 int bri = 0;
 int scan = 0;
 
+boolean card1 = false;
+boolean card2 = false;
+boolean card3 = false;
+
 void setup(){
   hue.connect(PASS); // Setup serial connection
   Serial.begin(115200); // Setup Serial. MUST BE 115200
@@ -55,33 +59,58 @@ void cardScan() {
   }
   delay(100);
   content.toUpperCase();
-  if (content.substring(1) == "20 1C 8B 7C") //change here the UID of the card/cards that you want to give access
+  if (content.substring(1) == "20 1C 8B 7C" && card1 == false) //change here the UID of the card/cards that you want to give access
   {
     hue.turnOn(ID,true);
     color += 60000;
     sat += 255;
     bri += 255;
-    scan++; 
+    scan++;
+    card1 = true;
   }
+  else if (content.substring(1) == "20 1C 8B 7C" && card1 == true){
+    color -= 60000;
+    sat -= 255;
+    bri -= 255;
+    scan--;
+    card1 = false;
+    }
+  
 
-  if (content.substring(1) == "10 3F 8C 7C") //change here the UID of the card/cards that you want to give access
+  if (content.substring(1) == "10 3F 8C 7C" && card2 == false) //change here the UID of the card/cards that you want to give access
   {
     hue.turnOn(ID,true);
     color += 30000;
     sat += 100;
     bri += 50;
-    scan++; 
+    scan++;
+    card2 = true; 
   }
+  else if (content.substring(1) == "10 3F 8C 7C" && card2 == true) {
+    color -= 30000;
+    sat -= 100;
+    bri -= 50;
+    scan--;
+    card2 = false;
+    }
 
-  if (content.substring(1) == "4B B9 2A 0B") //change here the UID of the card/cards that you want to give access
+  if (content.substring(1) == "4B B9 2A 0B" && card3 == false) //change here the UID of the card/cards that you want to give access
   {
     hue.turnOn(ID,true);
     color += 500;
-    sat += 255;
-    bri += 255;
-    scan++; 
+    sat += 200;
+    bri += 200;
+    scan++;
+    card3 = true;
   }
-  delay(50);
+  else if (content.substring(1) == "4B B9 2A 0B" && card3 == true) {
+    color -= 500;
+    sat -= 200;
+    bri -= 200;
+    scan--;
+    card3 = false;
+    }
+
 
   if (content.substring(1) == "04 AB 8B 72 97 3C 80") //change here the UID of the card/cards that you want to give access
   {
@@ -103,5 +132,8 @@ void loop(){
     if (scan != 0) {
     setColor();
     }
-    delay(50);
+    else if (scan == 0) {
+      hue.turnOn(ID, false);
+      }
+    delay(300);
 } 
