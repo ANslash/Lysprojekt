@@ -23,11 +23,20 @@ long color = 0;
 int sat = 0;
 int bri = 0;
 int scan = 0;
+
 int change;
+int satChange = 0;
 
 boolean card1 = false;
 boolean card2 = false;
 boolean card3 = false;
+
+// constants won't change. They're used here to set pin numbers:
+const int SENSOR_PIN1 = 4;       // the Arduino's input pin that connects to the sensor's SIGNAL pin
+const int SENSOR_PIN2 = 5;       // the Arduino's input pin that connects to the sensor's SIGNAL pin
+
+int currentState1 = digitalRead(SENSOR_PIN1);     // the current reading from the input pin
+int currentState2 = digitalRead(SENSOR_PIN2);     // the current reading from the input pin
 
 void setup(){
   hue.connect(PASS); // Setup serial connection
@@ -41,6 +50,9 @@ void setup(){
   SPI.begin();      // Initiate  SPI bus
   mfrc522.PCD_Init();   // Initiate MFRC522
 
+  // initialize the Arduino's pin as aninput
+  pinMode(SENSOR_PIN1, INPUT);
+  pinMode(SENSOR_PIN2, INPUT);
 }
 
 void cardScan() {
@@ -129,6 +141,7 @@ void cardScan() {
     sat = 0;
     bri = 0;
     scan = 0;
+    satChange = 0;
 
     card1 = false;
     card2 = false;
@@ -138,24 +151,36 @@ void cardScan() {
   }
 }
 
-void setColor() {
-  hue.setHueSat(ID, color/scan, sat/scan);
-  //hue.setBri(ID,bri/scan);
-}
+int getSat() {
+  if (scan > 0) {
+    return sat/scan;
+    }
+  return 0;
+  }
 
-void setNewColor() {
+void setColor() {
   hue.setHueSat(ID, color/scan, sat/scan);
   hue.setBri(ID,bri/scan);
 }
 
+void setSat() {
+  if (currentState1 == LOW && currentState2 == LOW && getSat() + satChange >= 0 && getSat() + satChange <= 255) {
+    changeSat += 5;
+    hue.setHueSat(ID, color/scan, sat/scan + changeSat);
+    setSat();
+    }
+    else if (currentState1 == LOW || currentState2 == LOW && getSat() + satChange >= 0 && getSat() + satChange <= 255) {
+      changeSat -= 5;
+      hue.setHueSat(ID, color/scan, sat/scan + changeSat);
+      setSat();
+      }
+  }
+
 void loop(){
     cardScan();
     if (scan > 0 && change == 1) {
-      setNewColor();
-    }
-    else if (scan > 0) {
       setColor();
-      }
+    }
     else if (scan == 0) {
       hue.turnOn(ID, false);
       }
@@ -164,6 +189,9 @@ void loop(){
       hue.setBri(ID, (dis * 10));
       Serial.println(dis*10);
       }
+    if (currentState1 == LOW || currentState2 == LOW) {
+      setSat();
+      }
     change = 0;
     delay(300);
-} 
+}
