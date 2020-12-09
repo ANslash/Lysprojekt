@@ -106,8 +106,8 @@ void cardScan1() {
   {
     hue.turnOn(ID,true);
     //hue2.turnOn(ID2,true);
-    color += 60000;
-    sat += 255;
+    color += 7000;
+    sat += 160;
     bri += 255;
     scan++;
     card1 = true;
@@ -115,8 +115,8 @@ void cardScan1() {
     delay(100);
   }
   else if (content.substring(1) == "20 1C 8B 7C" && card1 == true){
-    color -= 60000;
-    sat -= 255;
+    color -= 7000;
+    sat -= 160;
     bri -= 255;
     scan--;
     card1 = false;
@@ -129,8 +129,8 @@ void cardScan1() {
   {
     hue.turnOn(ID,true);
     //hue2.turnOn(ID2,true);
-    color += 30000;
-    sat += 100;
+    color += 60000;
+    sat += 255;
     bri += 50;
     scan++;
     card2 = true;
@@ -138,8 +138,8 @@ void cardScan1() {
     delay(100);
   }
   else if (content.substring(1) == "10 3F 8C 7C" && card2 == true) {
-    color -= 30000;
-    sat -= 100;
+    color -= 60000;
+    sat -= 255;
     bri -= 50;
     scan--;
     card2 = false;
